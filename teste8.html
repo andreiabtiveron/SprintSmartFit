@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Fit App</title>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&family=Roboto:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      margin: 0;
+      background-color: #f5f5f5;
+      color: #000;
+      font-family: 'Open Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: #fff;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #ddd;
+      position: relative;
+      z-index: 10;
+    }
+    header h1 {
+      color: #000;
+      font-size: 18px;
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+    }
+    main {
+      flex: 1;
+      padding: 15px;
+      background-color: #f5f5f5;
+      border-radius: 10px;
+      margin: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 5;
+      margin-bottom: 60px;
+    }
+    .btn {
+      background: #fbba00;
+      color: #000;
+      padding: 12px;
+      border: none;
+      border-radius: 20px;
+      margin: 10px 0;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      text-align: center;
+      font-family: 'Open Sans', sans-serif;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #e6a800;
+    }
+    .section {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #fff;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 15;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'Roboto', sans-serif;
+    }
+    .bottom-nav button i {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+    .bottom-nav button.active {
+      color: #fbba00;
+    }
+    #display {
+      font-size: 24px;
+      text-align: center;
+      margin: 20px 0;
+      color: #000;
+      font-family: 'Open Sans', sans-serif;
+    }
+    .section h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+    }
+    .section h3 {
+      font-size: 16px;
+      margin: 10px 0;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+    }
+    .section h4 {
+      font-size: 14px;
+      margin: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0,0.1);
+      transition: all 0.3s ease;
+    }
+    .section h4:hover {
+      background-color: #f9f9f9;
+    }
+    .section h4 i {
+      transition: transform 0.3s ease;
+    }
+    .section h4.active i {
+      transform: rotate(180deg);
+    }
+    .collapsible-content {
+      display: block;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 5px;
+    }
+    .link-item {
+      margin: 4px 0;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+      color: #000;
+      text-decoration: none;
+      display: block;
+      padding: 5px 10px;
+      transition: color 0.3s ease;
+    }
+    .link-item:hover {
+      color: #fbba00;
+    }
+    .card {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin-bottom: 15px;
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .gauge-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px auto;
+      position: relative;
+      height: 300px;
+      width: 120px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      padding: 10px;
+      animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .gauge {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, #ff4d4d 20%, #ffcc00 50%, #00cc00 80%, #00ff00 100%);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid #ccc;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    }
+    .gauge-pointer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+      transition: bottom 1s ease;
+    }
+    .gauge-labels {
+      position: absolute;
+      left: 140px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+      padding: 5px;
+    }
+    .gauge-labels span {
+      position: absolute;
+      width: 80px;
+      text-align: left;
+      transition: color 0.3s ease;
+    }
+    .gauge-labels span:nth-child(1) { bottom: 0%; color: #ff4d4d; }
+    .gauge-labels span:nth-child(2) { bottom: 30%; color: #ffcc00; }
+    .gauge-labels span:nth-child(3) { bottom: 85%; color: #00cc00; }
+    .gauge-labels span:nth-child(4) { bottom: 100%; font-size: 10px; color: #00ff00; }
+    .gauge-labels span:hover {
+      color: #fbba00;
+    }
+    .gauge-value {
+      margin-top: 15px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      color: #fbba00;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .level-info {
+      margin-top: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      color: #fbba00;
+    }
+    .savings-container {
+      margin-top: 20px;
+      max-width: 100%;
+    }
+    .water-savings, .energy-savings {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .water-savings p, .energy-savings p {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin: 0 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      max-width: 70%;
+    }
+    .water-savings p i, .energy-savings p i {
+      color: #fbba00;
+    }
+    .water-savings p span, .energy-savings p span {
+      color: #fbba00;
+      font-size: 16px;
+    }
+    .water-bottle {
+      width: 25px;
+      height: 50px;
+      background: linear-gradient(to top, #87ceeb, #add8e6);
+      border: 1px solid #4682b4;
+      border-radius: 5px;
+      position: relative;
+      animation: fillWater 0.5s ease-in-out;
+    }
+    .water-bottle::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 8px;
+      background: #4682b4;
+      border: 1px solid #2f4f4f;
+      border-radius: 50%;
+    }
+    @keyframes fillWater {
+      0% { transform: scaleY(0); }
+      100% { transform: scaleY(1); }
+    }
+    .energy-lamp {
+      width: 25px;
+      height: 25px;
+      background: linear-gradient(to top, #ffd700, #ffffe0);
+      border: 1px solid #daa520;
+      border-radius: 50%;
+      position: relative;
+      animation: pulseLamp 1s ease-in-out infinite;
+    }
+    .energy-lamp::before {
+      content: '\f0eb';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      color: #333;
+    }
+    @keyframes pulseLamp {
+      0% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+      50% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
+      100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+    }
+    .reward-item, .activity-item {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+    }
+    .reward-item span, .activity-item span {
+      font-weight: 600;
+      color: #fbba00;
+    }
+    .activity-checkbox {
+      margin: 5px 0;
+    }
+    .activity-checkbox input {
+      margin-right: 10px;
+    }
+    .chart-container {
+      margin: 20px 0;
+    }
+    .chart-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .chart-bar div {
+      height: 20px;
+      background-color: #fbba00;
+      margin-right: 10px;
+      border-radius: 5px;
+    }
+    .chart-bar span {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+    }
+    .profile-card {
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 15px;
+      transition: transform 0.3s ease;
+    }
+    .profile-card:hover {
+      transform: translateY(-5px);
+    }
+    .profile-photo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #ddd;
+      margin: 0 auto 15px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .profile-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .profile-info h3 {
+      font-size: 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      margin: 0 0 10px;
+      color: #333;
+    }
+    .profile-info p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #666;
+    }
+    .profile-info .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+    .profile-info .stat-item {
+      text-align: center;
+    }
+    .profile-info .stat-item span {
+      display: block;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fbba00;
+    }
+    .profile-info .stat-item p {
+      margin: 0;
+      font-size: 12px;
+      color: #999;
+    }
+    @media (max-width: 600px) {
+      .gauge-container {
+        width: 100px;
+        height: 250px;
+      }
+      .gauge-labels {
+        left: 120px;
+        font-size: 10px;
+      }
+      .gauge-labels span {
+        width: 70px;
+      }
+      .water-savings, .energy-savings {
+        gap: 6px;
+        align-items: center;
+      }
+      .water-savings p, .energy-savings p {
+        font-size: 12px;
+        max-width: 60%;
+        line-height: 1.4;
+      }
+      .water-bottle {
+        width: 20px;
+        height: 40px;
+      }
+      .water-bottle::before {
+        width: 6px;
+        height: 6px;
+      }
+      .energy-lamp {
+        width: 20px;
+        height: 20px;
+      }
+      .energy-lamp::before {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Smart Fit App</h1>
+  </header>
+
+  <main>
+    <div class="section active" id="inicio">
+      <h2>Oi, Ana!</h2>
+      <div class="card">
+        <button class="btn" onclick="mostrarSecao('perfil')">Ir para Perfil</button>
+        <button class="btn" onclick="mostrarSecao('jornada')">Ir para Jornada</button>
+      </div>
+
+      <div class="card">
+        <h3>Unidades e Planos</h3>
+        <div class="link-item"><a href="#" class="link-item">Unidades</a></div>
+        <div class="link-item"><a href="#" class="link-item">Planos</a></div>
+      </div>
+
+      <div class="card">
+        <h4 onclick="toggleCollapsible('institucional')">Institucional <i class="fas fa-chevron-down"></i></h4>
+        <div class="collapsible-content" id="institucional">
+          <div class="link-item"><a href="#" class="link-item">Sobre</a></div>
+          <div class="link-item"><a href="#" class="link-item">Conceito</a></div>
+          <div class="link-item"><a href="#" class="link-item">Investidores</a></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="link-item"><a href="#" class="link-item">Central de Ajuda</a></div>
+        <div class="link-item"><a href="#" class="link-item">Fale Conosco</a></div>
+        <div class="link-item"><a href="#" class="link-item">Edital Smart Fit</a></div>
+        <div class="link-item"><a href="#" class="link-item">Aviso de Privacidade</a></div>
+        <div class="link-item"><a href="#" class="link-item">Portal de Privacidade</a></div>
+      </div>
+
+      <div class="card">
+        <h4 onclick="toggleCollapsible('corporativo')">Corporativo <i class="fas fa-chevron-down"></i></h4>
+        <div class="collapsible-content" id="corporativo">
+          <div class="link-item"><a href="#" class="link-item">Imprensa</a></div>
+          <div class="link-item"><a href="#" class="link-item">Quero ser um franqueado</a></div>
+          <div class="link-item"><a href="#" class="link-item">Divulgue sua marca</a></div>
+          <div class="link-item"><a href="#" class="link-item">Indique um ponto</a></div>
+          <div class="link-item"><a href="#" class="link-item">Trabalhe Conosco</a></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="link-item"><a href="#" class="link-item">Transparência salarial e Critérios remuneratórios Smart Fit</a></div>
+        <div class="link-item"><a href="#" class="link-item">Transparência salarial e Critérios remuneratórios BIOMURUM</a></div>
+        <div class="link-item"><a href="#" class="link-item">Formulário prévio ao contrato Personal</a></div>
+      </div>
+    </div>
+
+    <div class="section" id="perfil">
+      <h2>Meu Perfil</h2>
+      <div class="profile-card">
+        <div class="profile-photo">
+          <img src="https://via.placeholder.com/100" alt="Foto do Usuário">
+        </div>
+        <div class="profile-info">
+          <h3>Ana Silva</h3>
+          <p><strong>Email:</strong> ana@email.com</p>
+          <p><strong>Membro desde:</strong> Janeiro 2023</p>
+          <p><strong>Localização:</strong> São Paulo, SP</p>
+          <div class="stats">
+            <div class="stat-item">
+              <span>1500</span>
+              <p>Pontos</p>
+            </div>
+            <div class="stat-item">
+              <span>25</span>
+              <p>Treinos</p>
+            </div>
+            <div class="stat-item">
+              <span>3</span>
+              <p>Meses</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn" onclick="mostrarSecao('jornada')">Sua Jornada</button>
+    </div>
+
+    <div class="section" id="jornada">
+      <h2>Sua Jornada</h2>
+      <div class="gauge-container">
+        <div class="gauge">
+          <div class="gauge-pointer" id="gaugePointer"></div>
+        </div>
+        <div class="gauge-labels">
+          <span>0 (EcoIniciante)</span>
+          <span>1,500 (EcoAtivo)</span>
+          <span>3,500 (EcoLendário)</span>
+          <span>5,000</span>
+        </div>
+      </div>
+      <div class="gauge-value" id="gaugeValue">Pontos: 0</div>
+      <div class="level-info" id="levelInfo">Nível: EcoIniciante</div>
+      <div class="savings-container">
+        <h3>Economias</h3>
+        <div class="water-savings" id="waterSavings"></div>
+        <div class="energy-savings" id="energySavings"></div>
+      </div>
+    </div>
+
+    <div class="section" id="ecosmart">
+      <h2>EcoSmart</h2>
+      <h3>Cronômetro</h3>
+      <div id="display">00:00:00</div>
+      <button class="btn" onclick="iniciarCronometro()">Iniciar</button>
+      <button class="btn" onclick="pausarCronometro()">Pausar</button>
+      <button class="btn" onclick="zerarCronometro()">Zerar</button>
+
+      <h3>Recompensas</h3>
+      <div class="reward-item"><span>250 pontos:</span> Desconto de 5% em camisetas e acessórios</div>
+      <div class="reward-item"><span>500 pontos:</span> 1 bebida Smart Fit Energy + 5% off na Supps</div>
+      <div class="reward-item"><span>750 pontos:</span> Desconto extra de 10% no próximo mês de plano</div>
+      <div class="reward-item"><span>1000 pontos:</span> Kit degustação de Whey + 7 dias de Energy grátis</div>
+      <div class="reward-item"><span>1250 pontos:</span> Uso da cadeira de massagem por 15 minutos</div>
+      <div class="reward-item"><span>1500 pontos:</span> 1 Coqueteleira Smart Fit + 10% off na Supps</div>
+      <div class="reward-item"><span>1750 pontos:</span> 2 Smart Bars + 1 bebida Energy adicional</div>
+      <div class="reward-item"><span>2000 pontos:</span> 1 mês de Smart Fit Energy grátis + barras proteicas</div>
+      <div class="reward-item"><span>2250 pontos:</span> Upgrade para plano Black por 7 dias</div>
+      <div class="reward-item"><span>2500 pontos:</span> 15% off na Supps + Camiseta oficial Smart Fit</div>
+      <div class="reward-item"><span>2750 pontos:</span> Brinde físico (toalha ou squeeze) + 10% extra na Supps</div>
+      <div class="reward-item"><span>3000 pontos:</span> Combo Whey + Creatina com 20% off + brinde surpresa</div>
+      <div class="reward-item"><span>3500 pontos:</span> 1 mês gratuito no plano Smart (caso não seja Black)</div>
+      <div class="reward-item"><span>4000 pontos:</span> Kit completo Supps + plano Smart grátis por 1 mês</div>
+      <div class="reward-item"><span>5000 pontos:</span> Mentoria especial com personal + prêmio surpresa top</div>
+
+      <h3>Atividades</h3>
+      <h4>Atividades Realizadas Hoje:</h4>
+      <div class="activity-checkbox"><input type="checkbox" id="banhoRapido" onchange="validarBanho('banhoRapido')"> <label for="banhoRapido"><span>Banho rápido (até 7 min):</span> +15 pontos</label></div>
+      <div class="activity-checkbox"><input type="checkbox" id="banhoSuper" onchange="validarBanho('banhoSuper')"> <label for="banhoSuper"><span>Banho super eficiente (até 5 min):</span> +25 pontos</label></div>
+      <div class="activity-checkbox"><input type="checkbox" id="banhoSemana" onchange="validarBanho('banhoSemana')"> <label for="banhoSemana"><span>1 semana de banhos curtos (até 7 min):</span> +50 pontos (bônus)</label></div>
+      <div class="activity-checkbox"><input type="checkbox" id="esteiraEnergia" onchange="calcularPontos()"> <label for="esteiraEnergia"><span>Esteira geradora de energia (15 min):</span> +30 pontos</label></div>
+      <div class="activity-checkbox"><input type="checkbox" id="bikeEnergia" onchange="calcularPontos()"> <label for="bikeEnergia"><span>Bike geradora de energia (15 min):</span> +30 pontos</label></div>
+      <div class="activity-checkbox"><input type="checkbox" id="desligouAparelhos" onchange="calcularPontos()"> <label for="desligouAparelhos"><span>Desligou os aparelhos após o uso:</span> +10 pontos</label></div>
+      <div class="activity-checkbox"><input type="checkbox" id="treinoConsciente" onchange="calcularPontos()"> <label for="treinoConsciente"><span>Treino consciente e completo:</span> +20 pontos</label></div>
+      <div class="activity-checkbox"><input type="checkbox" id="energia1kWh" onchange="calcularPontos()"> <label for="energia1kWh"><span>Gerou 1kWh de energia total:</span> +100 pontos</label></div>
+      <button class="btn" onclick="finalizarAtividades()">Finalizar Atividades</button>
+    </div>
+  </main>
+
+  <div class="bottom-nav">
+    <button onclick="mostrarSecao('inicio')" id="nav-inicio" class="active"><i class="fas fa-home"></i>Início</button>
+    <button onclick="mostrarSecao('ecosmart')" id="nav-ecosmart"><i class="fas fa-leaf"></i>EcoSmart</button>
+    <button onclick="mostrarSecao('perfil')" id="nav-perfil"><i class="fas fa-user"></i>Perfil</button>
+  </div>
+
+  <script>
+    const secoes = document.querySelectorAll(".section");
+
+    function mostrarSecao(id) {
+      const section = document.getElementById(id);
+      if (!section) {
+        console.error(`Elemento com ID '${id}' não encontrado.`);
+        return;
+      }
+
+      secoes.forEach(secao => secao.classList.remove("active"));
+      section.classList.add("active");
+
+      const navButtons = document.querySelectorAll(".bottom-nav button");
+      navButtons.forEach(btn => btn.classList.remove("active"));
+      const navButton = document.getElementById(`nav-${id}`);
+      if (navButton) {
+        navButton.classList.add("active");
+      }
+    }
+
+    function toggleCollapsible(id) {
+      const content = document.getElementById(id);
+      if (!content) {
+        console.error(`Elemento com ID '${id}' não encontrado.`);
+        return;
+      }
+      const header = content.previousElementSibling;
+      if (!header) {
+        console.error(`Elemento header para ID '${id}' não encontrado.`);
+        return;
+      }
+      content.classList.toggle("active");
+      header.classList.toggle("active");
+    }
+
+    const gaugePointer = document.getElementById('gaugePointer');
+    const gaugeValue = document.getElementById('gaugeValue');
+    let totalPoints = 0;
+    const maxValue = 5000;
+
+    function validarBanho(selecionado) {
+      // Garante que apenas uma atividade de banho seja selecionada
+      const banhos = ['banhoRapido', 'banhoSuper', 'banhoSemana'];
+      banhos.forEach(id => {
+        if (id !== selecionado) {
+          document.getElementById(id).checked = false;
+        }
+      });
+      calcularPontos();
+    }
+
+    function calcularPontos() {
+      let points = 0;
+      let waterSaved = 0; // Litros economizados em relação a um banho padrão (189L)
+      let energyConsumed = 0; // kWh consumidos (ex.: aquecimento de água)
+      let energyGeneratedOrSaved = 0; // kWh gerados (ex.: esteira) ou economizados (ex.: desligar aparelhos)
+
+      // Banho padrão: 189L de água e 5.25 kWh (média de 4.2 a 6.3 kWh)
+      if (document.getElementById('banhoRapido').checked) {
+        points += 15;
+        waterSaved += 94.5; // Média: (63 + 126) / 2, economia em relação a 189L
+        energyConsumed += 2.625; // Média: (2.1 + 3.15) / 2
+      }
+      if (document.getElementById('banhoSuper').checked) {
+        points += 25;
+        waterSaved += 67.5; // Média: (45 + 90) / 2, economia em relação a 189L
+        energyConsumed += 1.875; // Média: (1.5 + 2.25) / 2
+      }
+      if (document.getElementById('banhoSemana').checked) {
+        points += 50;
+        waterSaved += 661.5; // Média: (441 + 882) / 2, economia em relação a 7*189L
+        energyConsumed += 18.4; // Média: (14.7 + 22.1) / 2
+      }
+      if (document.getElementById('esteiraEnergia').checked) {
+        points += 30;
+        energyGeneratedOrSaved += 0.05; // Energia gerada
+      }
+      if (document.getElementById('bikeEnergia').checked) {
+        points += 30;
+        energyGeneratedOrSaved += 0.06; // Energia gerada
+      }
+      if (document.getElementById('desligouAparelhos').checked) {
+        points += 10;
+        energyGeneratedOrSaved += 0.35; // Média: (0.2 + 0.5) / 2, energia economizada
+      }
+      if (document.getElementById('treinoConsciente').checked) {
+        points += 20;
+        waterSaved += 5; // Média: (0 + 10) / 2
+        energyConsumed += 0.075; // Média: (0.05 + 0.1) / 2
+      }
+      if (document.getElementById('energia1kWh').checked) {
+        points += 100;
+        energyGeneratedOrSaved += 1; // Energia gerada
+      }
+
+      return { points, waterSaved, energyConsumed, energyGeneratedOrSaved };
+    }
+
+    function updateSavings(waterSaved, energyGeneratedOrSaved) {
+      // Água: 1 galão = 3.785 litros
+      const gallons = Math.floor(waterSaved / 3.785);
+      // Energia: 1 lâmpada de 10W por 1 hora = 0.01 kWh
+      const lamps = Math.floor(energyGeneratedOrSaved / 0.01);
+
+      const waterSavingsDiv = document.getElementById('waterSavings');
+      waterSavingsDiv.innerHTML = '';
+      if (gallons > 0) {
+        waterSavingsDiv.innerHTML = `<p><i class="fas fa-tint"></i> Você economizou água para encher <span>${gallons}</span> ${gallons > 1 ? 'galões' : 'galão'}!</p>`;
+        for (let i = 0; i < Math.min(gallons, 10); i++) {
+          waterSavingsDiv.innerHTML += '<div class="water-bottle"></div>';
+        }
+      }
+
+      const energySavingsDiv = document.getElementById('energySavings');
+      energySavingsDiv.innerHTML = '';
+      if (lamps > 0) {
+        energySavingsDiv.innerHTML = `<p><i class="fas fa-bolt"></i> Você gerou/economizou energia para ligar <span>${lamps}</span> lâmpada${lamps > 1 ? 's' : ''} de 10W por 1 hora!</p>`;
+        for (let i = 0; i < Math.min(lamps, 10); i++) {
+          energySavingsDiv.innerHTML += '<div class="energy-lamp"></div>';
+        }
+      }
+    }
+
+    function updateGauge(points, waterSaved, energyGeneratedOrSaved) {
+      totalPoints = Math.min(Math.max(totalPoints + points, 0), maxValue);
+      const percentage = (totalPoints / maxValue) * 100;
+      gaugePointer.style.bottom = `${percentage}%`;
+      gaugeValue.textContent = `Pontos: ${totalPoints}`;
+
+      let level = 'EcoIniciante';
+      if (totalPoints > 3500) {
+        level = 'EcoLendário';
+      } else if (totalPoints > 1500) {
+        level = 'EcoAtivo';
+      }
+      document.getElementById('levelInfo').textContent = `Nível: ${level}`;
+
+      updateSavings(waterSaved, energyGeneratedOrSaved);
+    }
+
+    function finalizarAtividades() {
+      const { points, waterSaved, energyGeneratedOrSaved } = calcularPontos();
+      updateGauge(points, waterSaved, energyGeneratedOrSaved);
+
+      document.getElementById('banhoRapido').checked = false;
+      document.getElementById('banhoSuper').checked = false;
+      document.getElementById('banhoSemana').checked = false;
+      document.getElementById('esteiraEnergia').checked = false;
+      document.getElementById('bikeEnergia').checked = false;
+      document.getElementById('desligouAparelhos').checked = false;
+      document.getElementById('treinoConsciente').checked = false;
+      document.getElementById('energia1kWh').checked = false;
+    }
+
+    let tempo = 0;
+    let intervalo;
+    let ativo = false;
+
+    function atualizarDisplay() {
+      const h = String(Math.floor(tempo / 3600)).padStart(2, '0');
+      const m = String(Math.floor((tempo % 3600) / 60)).padStart(2, '0');
+      const s = String(tempo % 60).padStart(2, '0');
+      document.getElementById("display").textContent = `${h}:${m}:${s}`;
+    }
+
+    function iniciarCronometro() {
+      if (!ativo) {
+        ativo = true;
+        intervalo = setInterval(() => {
+          tempo++;
+          atualizarDisplay();
+        }, 1000);
+      }
+    }
+
+    function pausarCronometro() {
+      if (ativo) {
+        ativo = false;
+        clearInterval(intervalo);
+        verificarBanho();
+      }
+    }
+
+    function zerarCronometro() {
+      tempo = 0;
+      ativo = false;
+      clearInterval(intervalo);
+      atualizarDisplay();
+      document.getElementById('banhoRapido').checked = false;
+      document.getElementById('banhoSuper').checked = false;
+      document.getElementById('banhoSemana').checked = false;
+    }
+
+    function verificarBanho() {
+      const segundos = tempo % 60;
+      const minutos = Math.floor((tempo % 3600) / 60);
+      const totalMinutos = minutos + (segundos / 60);
+
+      document.getElementById('banhoRapido').checked = false;
+      document.getElementById('banhoSuper').checked = false;
+      document.getElementById('banhoSemana').checked = false;
+
+      if (totalMinutos <= 5) {
+        document.getElementById('banhoSuper').checked = true;
+      } else if (totalMinutos <= 7) {
+        document.getElementById('banhoRapido').checked = true;
+      }
+      calcularPontos();
+    }
+
+    atualizarDisplay();
+  </script>
+</body>
+</html>
